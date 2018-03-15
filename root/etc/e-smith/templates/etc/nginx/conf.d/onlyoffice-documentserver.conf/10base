@@ -1,7 +1,7 @@
 include /etc/nginx/includes/onlyoffice-http.conf;
 
 ## Normal HTTP host
-server {
+server \{
   listen 0.0.0.0:9999;
   listen [::]:9999 default_server;
   server_name _;
@@ -10,10 +10,10 @@ server {
   ## Redirects all traffic to the HTTPS host
   root /nowhere; ## root doesn't have to be a valid path since we are redirecting
   rewrite ^ https://$host$request_uri? permanent;
-}
+\}
 
 #HTTP host for internal services
-server {
+server \{
   listen 127.0.0.1:9999;
   listen [::1]:9999;
   server_name localhost;
@@ -21,10 +21,10 @@ server {
   
   include /etc/nginx/includes/onlyoffice-documentserver-common.conf;
   include /etc/nginx/includes/onlyoffice-documentserver-docservice.conf;
-}
+\}
 
 ## HTTPS host
-server {
+server \{
   listen 0.0.0.0:8082 ssl;
   listen [::]:8082 ssl default_server;
   server_tokens off;
@@ -67,4 +67,4 @@ server {
 
   include /etc/nginx/includes/onlyoffice-documentserver-*.conf;
 
-}
+\}
