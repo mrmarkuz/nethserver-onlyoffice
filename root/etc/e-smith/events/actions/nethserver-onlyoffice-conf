@@ -21,3 +21,6 @@ sed -i 's!{{SSL_CERTIFICATE_PATH}}!/etc/pki/tls/certs/localhost.crt!' /etc/nginx
 # add ssl key config - change if using letsencrypt or own certs
 sed -i 's!{{SSL_KEY_PATH}}!/etc/pki/tls/private/localhost.key!' /etc/nginx/conf.d/onlyoffice-documentserver.conf
 
+# set firewall port
+config set fw_onlyoffice service status enabled TCPPort 8082 access green
+signal-event firewall-adjust
