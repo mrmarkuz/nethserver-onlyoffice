@@ -5,3 +5,4 @@ sudo -u postgres psql -c "CREATE USER onlyoffice WITH password 'onlyoffice';"
 sudo -u postgres psql -c "GRANT ALL privileges ON DATABASE onlyoffice TO onlyoffice;"
 
 systemctl enable supervisord --now
+systemctl enable rabbitmq-server --now

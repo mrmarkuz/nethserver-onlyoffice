@@ -6,7 +6,8 @@ License: GPL
 Source0: %{name}-%{version}.tar.gz
 BuildArch: noarch
 BuildRequires: nethserver-devtools
-Requires: nethserver-postgresql,nethserver-redis,rabbitmq-server
+Requires: nethserver-postgresql,nethserver-redis,nethserver-nginx
+Requires: rabbitmq-server,supervisor,onlyoffice-documentserver
 
 %description
 Onlyoffice document server for for NethServer, a web based document editor server
@@ -32,3 +33,4 @@ rm -rf %{buildroot}
 %changelog
 * Fri Mar 10 2018 Markus Neuberger <dev@markusneuberger.at> - 0.0.1-1
 - First release
+- Add requires
