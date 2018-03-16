@@ -10,17 +10,20 @@ systemctl enable rabbitmq-server --now
 /usr/bin/documentserver-configure2.sh
 
 # create nginx conf for documentserver out of a template
-/bin/cp -rf /etc/nginx/conf.d/onlyoffice-documentserver-ssl.conf.template /etc/nginx/conf.d/onlyoffice-documentserver.conf
+#/bin/cp -rf /etc/nginx/conf.d/onlyoffice-documentserver-ssl.conf.template /etc/nginx/conf.d/onlyoffice-documentserver.conf
 
 # change port from 443 to 8082
-sed -i '28,29 s/443/8082/' /etc/nginx/conf.d/onlyoffice-documentserver.conf
+#sed -i '28,29 s/443/8082/' /etc/nginx/conf.d/onlyoffice-documentserver.conf
 
 # add ssl cert config - change if using letsencrypt or own certs
-sed -i 's!{{SSL_CERTIFICATE_PATH}}!/etc/pki/tls/certs/localhost.crt!' /etc/nginx/conf.d/onlyoffice-documentserver.conf
+#sed -i 's!{{SSL_CERTIFICATE_PATH}}!/etc/pki/tls/certs/localhost.crt!' /etc/nginx/conf.d/onlyoffice-documentserver.conf
 
 # add ssl key config - change if using letsencrypt or own certs
-sed -i 's!{{SSL_KEY_PATH}}!/etc/pki/tls/private/localhost.key!' /etc/nginx/conf.d/onlyoffice-documentserver.conf
+#sed -i 's!{{SSL_KEY_PATH}}!/etc/pki/tls/private/localhost.key!' /etc/nginx/conf.d/onlyoffice-documentserver.conf
 
 # set firewall port
-config set fw_onlyoffice service status enabled TCPPort 8082 access green
+config set fw_onlyoffice service status enabled TCPPort 8082 access red,green
 signal-event firewall-adjust
+
+# expand onlyoffice config
+expand-template /etc/nginx/conf.d/onlyoffice-documentserver.conf
