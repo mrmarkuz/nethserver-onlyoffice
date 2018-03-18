@@ -1,6 +1,6 @@
 Name: nethserver-onlyoffice
 Version: 0.0.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 Summary: Onlyoffice document server for NethServer
 License: GPL
 Source0: %{name}-%{version}.tar.gz
@@ -31,6 +31,8 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Sun Mar 18 2018 Markus Neuberger <dev@markusneuberger.at> - 0.0.1-2
+- Secure access via JWT token
 * Fri Mar 10 2018 Markus Neuberger <dev@markusneuberger.at> - 0.0.1-1
 - First release
 - Add requires
