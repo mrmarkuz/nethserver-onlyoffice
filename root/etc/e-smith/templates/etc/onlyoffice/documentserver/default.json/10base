@@ -66,7 +66,7 @@
         "forgottenfiles": "forgotten",
         "forgottenfilesname": "output"
       \},
-      "autoAssembly": {
+      "autoAssembly": \{
         "enable": false,
         "interval": "5m",
         "step": "1m"
@@ -136,7 +136,7 @@
 {
     use esmith::util;
     my $password = NethServer::Password::store('onlyofficesecret') || die('Could not generate onlyofficesecret password!');
-    $OUT .= "          "string": "$password",\n";
+    $OUT .= "          \"string\": \"$password\",";
 }
           "file": "",
           "tenants": \{\}
@@ -145,7 +145,7 @@
 {
     use esmith::util;
     my $password = NethServer::Password::store('onlyofficesecret') || die('Could not generate onlyofficesecret password!');
-    $OUT .= "          "string": "$password",\n";
+    $OUT .= "          \"string\": \"$password\",";
 }
           "file": ""
         \},
@@ -153,7 +153,7 @@
 {
     use esmith::util;
     my $password = NethServer::Password::store('onlyofficesecret') || die('Could not generate onlyofficesecret password!');
-    $OUT .= "          "string": "$password",\n";
+    $OUT .= "          \"string\": \"$password\",";
 }
           "file": ""
         \}
@@ -170,18 +170,18 @@
           "header": "Authorization",
           "prefix": "Bearer "
         \},
-        "outbox": {
+        "outbox": \{
           "header": "Authorization",
           "prefix": "Bearer ",
           "algorithm": "HS256",
           "expires": "5m"
         \},
-        "session": {
+        "session": \{
           "algorithm": "HS256",
           "expires": "10m"
         \}
       \},
-      "plugins": {
+      "plugins": \{
         "uri": "/sdkjs-plugins",
         "autostart": []
       \}
