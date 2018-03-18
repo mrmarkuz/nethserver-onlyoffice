@@ -33,6 +33,7 @@ rm -rf %{buildroot}
 %changelog
 * Sun Mar 18 2018 Markus Neuberger <dev@markusneuberger.at> - 0.0.1-2
 - Secure access via JWT token
+
 * Fri Mar 10 2018 Markus Neuberger <dev@markusneuberger.at> - 0.0.1-1
 - First release
 - Add requires

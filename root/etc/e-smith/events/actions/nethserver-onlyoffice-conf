@@ -27,3 +27,5 @@ signal-event firewall-adjust
 
 # expand onlyoffice config
 expand-template /etc/nginx/conf.d/onlyoffice-documentserver.conf
+expand-template /etc/onlyoffice/documentserver/default.json
+supervisorctl restart all
