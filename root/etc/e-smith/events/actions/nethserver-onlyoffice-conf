@@ -27,7 +27,7 @@ sudo -u apache /opt/rh/rh-php71/root/usr/bin/php /usr/share/nextcloud/occ app:in
 # Set DocumentServerUrl
 set fqdn=`config get SystemName`.`config get DomainName`
 set dshost=`config getprop fw_onlyoffice host || echo $fqdn`
-sudo -u apache /opt/rh/rh-php71/root/usr/bin/php /usr/share/nextcloud/occ config:app:set onlyoffice DocumentServerUrl --value="https://`config get SystemName`.`config get DomainName`:8082/"
+sudo -u apache /opt/rh/rh-php71/root/usr/bin/php /usr/share/nextcloud/occ config:app:set onlyoffice DocumentServerUrl --value="https://$dshost:8082/"
 
 # Set token secret
 sudo -u apache /opt/rh/rh-php71/root/usr/bin/php /usr/share/nextcloud/occ config:app:set onlyoffice jwt_secret --value="`cat /var/lib/nethserver/secrets/onlyoffice`"
