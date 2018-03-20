@@ -7,7 +7,7 @@ Source0: %{name}-%{version}.tar.gz
 BuildArch: noarch
 BuildRequires: nethserver-devtools
 Requires: nethserver-postgresql,nethserver-redis,nethserver-nginx
-Requires: rabbitmq-server,supervisor,onlyoffice-documentserver
+Requires: rabbitmq-server,supervisor,onlyoffice-documentserver,rh-php71-php-cli
 
 %description
 Onlyoffice document server for for NethServer, a web based document editor server
@@ -33,6 +33,8 @@ rm -rf %{buildroot}
 %changelog
 * Tue Mar 20 2018 Markus Neuberger <dev@markusneuberger.at> - 0.0.1-2
 - Secure access via JWT token - thanks to @dnutan
+- autoinstall of onlyoffice nextcloud app - thanks to @danb35
+- allow self-signed cert - thanks to @flatspin
 
 * Fri Mar 10 2018 Markus Neuberger <dev@markusneuberger.at> - 0.0.1-1
 - First release

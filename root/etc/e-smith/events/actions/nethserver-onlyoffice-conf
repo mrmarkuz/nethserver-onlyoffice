@@ -9,18 +9,6 @@ systemctl enable rabbitmq-server --now
 
 /usr/bin/documentserver-configure2.sh
 
-# create nginx conf for documentserver out of a template
-#/bin/cp -rf /etc/nginx/conf.d/onlyoffice-documentserver-ssl.conf.template /etc/nginx/conf.d/onlyoffice-documentserver.conf
-
-# change port from 443 to 8082
-#sed -i '28,29 s/443/8082/' /etc/nginx/conf.d/onlyoffice-documentserver.conf
-
-# add ssl cert config - change if using letsencrypt or own certs
-#sed -i 's!{{SSL_CERTIFICATE_PATH}}!/etc/pki/tls/certs/localhost.crt!' /etc/nginx/conf.d/onlyoffice-documentserver.conf
-
-# add ssl key config - change if using letsencrypt or own certs
-#sed -i 's!{{SSL_KEY_PATH}}!/etc/pki/tls/private/localhost.key!' /etc/nginx/conf.d/onlyoffice-documentserver.conf
-
 # set firewall port
 config set fw_onlyoffice service status enabled TCPPort 8082 access red,green
 signal-event firewall-adjust
@@ -29,3 +17,18 @@ signal-event firewall-adjust
 expand-template /etc/nginx/conf.d/onlyoffice-documentserver.conf
 expand-template /etc/onlyoffice/documentserver/default.json
 supervisorctl restart all
+
+# Enable self-signed cert
+grep -q -F "'onlyoffice' => array ( 'verify_peer_off' => TRUE)" /usr/share/nextcloud/config/config.php || sed -i '$i'"'onlyoffice'"' => array ( '"'verify_peer_off'"' => TRUE)' /usr/share/nextcloud/config/config.php
+
+# Install onlyoffice app
+sudo -u apache /opt/rh/rh-php71/root/usr/bin/php /usr/share/nextcloud/occ app:install onlyoffice
+
+# Set DocumentServerUrl
+sudo -u apache /opt/rh/rh-php71/root/usr/bin/php /usr/share/nextcloud/occ config:app:set onlyoffice DocumentServerUrl --value="https://`config get SystemName`.`config get DomainName`:8082/"
+
+# Set token secret
+sudo -u apache /opt/rh/rh-php71/root/usr/bin/php /usr/share/nextcloud/occ config:app:set onlyoffice jwt_secret --value="`cat /var/lib/nethserver/secrets/onlyoffice`"
+
+# Enable onlyoffice app
+sudo -u apache /opt/rh/rh-php71/root/usr/bin/php /usr/share/nextcloud/occ app:enable onlyoffice
