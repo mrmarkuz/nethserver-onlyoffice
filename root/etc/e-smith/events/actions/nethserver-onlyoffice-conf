@@ -25,8 +25,8 @@ grep -q -F "'onlyoffice' => array ( 'verify_peer_off' => TRUE)" /usr/share/nextc
 sudo -u apache /opt/rh/rh-php71/root/usr/bin/php /usr/share/nextcloud/occ app:install onlyoffice
 
 # Set DocumentServerUrl
-set fqdn=`config get SystemName`.`config get DomainName`
-set dshost=`config getprop fw_onlyoffice host || echo $fqdn`
+export fqdn=`config get SystemName`.`config get DomainName`
+export dshost=`config getprop fw_onlyoffice host || echo $fqdn`
 sudo -u apache /opt/rh/rh-php71/root/usr/bin/php /usr/share/nextcloud/occ config:app:set onlyoffice DocumentServerUrl --value="https://$dshost:8082/"
 
 # Set token secret
