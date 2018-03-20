@@ -35,6 +35,7 @@ rm -rf %{buildroot}
 - Secure access via JWT token - thanks to @dnutan
 - autoinstall of onlyoffice nextcloud app - thanks to @danb35
 - allow self-signed cert - thanks to @flatspin
+- add host db prop
 
 * Fri Mar 10 2018 Markus Neuberger <dev@markusneuberger.at> - 0.0.1-1
 - First release

@@ -10,7 +10,7 @@ systemctl enable rabbitmq-server --now
 /usr/bin/documentserver-configure2.sh
 
 # set firewall port
-config set fw_onlyoffice service status enabled TCPPort 8082 access red,green
+config show fw_onlyoffice || config set fw_onlyoffice service status enabled TCPPort 8082 access red,green
 signal-event firewall-adjust
 
 # expand onlyoffice config
