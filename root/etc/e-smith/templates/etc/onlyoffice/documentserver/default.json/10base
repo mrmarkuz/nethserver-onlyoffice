@@ -135,7 +135,7 @@
         "inbox": \{
 {
     use esmith::util;
-    my $password = NethServer::Password::store('onlyofficesecret') || die('Could not generate onlyofficesecret password!');
+    my $password = NethServer::Password::store('onlyoffice') || die('Could not generate onlyoffice password!');
     $OUT .= "          \"string\": \"$password\",";
 }
           "file": "",
@@ -144,7 +144,7 @@
         "outbox": \{
 {
     use esmith::util;
-    my $password = NethServer::Password::store('onlyofficesecret') || die('Could not generate onlyofficesecret password!');
+    my $password = NethServer::Password::store('onlyoffice') || die('Could not generate onlyoffice password!');
     $OUT .= "          \"string\": \"$password\",";
 }
           "file": ""
@@ -152,7 +152,7 @@
         "session": \{
 {
     use esmith::util;
-    my $password = NethServer::Password::store('onlyofficesecret') || die('Could not generate onlyofficesecret password!');
+    my $password = NethServer::Password::store('onlyoffice') || die('Could not generate onlyoffice password!');
     $OUT .= "          \"string\": \"$password\",";
 }
           "file": ""
