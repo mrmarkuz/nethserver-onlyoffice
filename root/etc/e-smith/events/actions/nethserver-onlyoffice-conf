@@ -1,36 +1,121 @@
 #!/bin/bash
 
-sudo -u postgres psql -c "CREATE DATABASE onlyoffice;"
-sudo -u postgres psql -c "CREATE USER onlyoffice WITH password 'onlyoffice';"
-sudo -u postgres psql -c "GRANT ALL privileges ON DATABASE onlyoffice TO onlyoffice;"
+# configure nginx
+expand-template /etc/nginx/conf.d/onlyoffice-documentserver.conf
+systemctl restart nginx
+
+# enable services
 
 systemctl enable supervisord --now
 systemctl enable rabbitmq-server --now
 
-/usr/bin/documentserver-configure2.sh
-
 # set firewall port
-config show fw_onlyoffice || config set fw_onlyoffice service status enabled TCPPort 8082 access red,green
+config show fw_onlyoffice > /dev/null || config set fw_onlyoffice service status enabled TCPPort 8082 access red,green
 signal-event firewall-adjust
 
-# expand onlyoffice config
-expand-template /etc/nginx/conf.d/onlyoffice-documentserver.conf
-expand-template /etc/onlyoffice/documentserver/default.json
+# create password if not exist
+perl -e"use esmith::util;NethServer::Password::store('onlyoffice') || die('Could not generate onlyoffice password');"
+
+# configure onlyoffice
+
+DIR="/var/www/onlyoffice"
+DEFAULT_CONFIG="/etc/onlyoffice/documentserver/default.json"
+EXAMPLE_CONFIG="/etc/onlyoffice/documentserver-example/default.json"
+SAVED_DEFAULT_CONFIG="$DEFAULT_CONFIG.rpmsave"
+
+PSQL=""
+CREATEDB=""
+
+DS_PORT=${DS_PORT:-80}
+# DOCSERVICE_PORT=${DOCSERVICE_PORT:-8000}
+# SPELLCHECKER_PORT=${SPELLCHECKER_PORT:-8080}
+# EXAMPLE_PORT=${EXAMPLE_PORT:-3000}
+
+JWT_ENABLED=${JWT_ENABLED:-true}
+JWT_SECRET=${JWT_SECRET:-secret}
+JWT_HEADER=${JWT_HEADER:-Authorization}
+
+JWT_SECRET=`cat /var/lib/nethserver/secrets/onlyoffice`
+
+# create database if not exist
+
+export PGPASSWORD=onlyoffice
+CONNECTION_PARAMS="-hlocalhost -Uonlyoffice -w"
+PSQL="psql -q $CONNECTION_PARAMS"
+CREATEDB="createdb -q $CONNECTION_PARAMS"
+
+su - postgres -c "psql -lqt | cut -d \| -f 1 | grep -q -w onlyoffice"
+if [ $? -eq 1 ]; then # database do not exists
+  su - postgres -c 'psql -c "CREATE DATABASE onlyoffice;"'
+  su - postgres -c "psql -c \"CREATE USER onlyoffice WITH password 'onlyoffice';\""
+  su - postgres -c 'psql -c "GRANT ALL privileges ON DATABASE onlyoffice TO onlyoffice;"'
+fi
+
+# check if db works correctly
+
+$PSQL -c ";" >/dev/null 2>&1 || { echo "FAILURE"; exit 1; }
+
+# db schema
+
+$PSQL -d "onlyoffice" -f "$DIR/documentserver/server/schema/postgresql/createdb.sql" >/dev/null 2>&1
+
+# install json
+
+npm list -g json >/dev/null 2>&1 || npm install -g json >/dev/null 2>&1
+
+# postgres db settings
+
+json -I -f $DEFAULT_CONFIG -e "this.services.CoAuthoring.sql.dbHost = 'localhost'" >/dev/null 2>&1
+json -I -f $DEFAULT_CONFIG -e "this.services.CoAuthoring.sql.dbName= 'onlyoffice'" >/dev/null 2>&1
+json -I -f $DEFAULT_CONFIG -e "this.services.CoAuthoring.sql.dbUser = 'onlyoffice'" >/dev/null 2>&1
+json -I -f $DEFAULT_CONFIG -e "this.services.CoAuthoring.sql.dbPass = 'onlyoffice'" >/dev/null 2>&1
+
+# RabbitMQ
+
+json -I -f $DEFAULT_CONFIG -e "this.rabbitmq.url = 'amqp://guest:guest@localhost'" >/dev/null 2>&1
+
+# redis
+
+json -I -f $DEFAULT_CONFIG -e "this.services.CoAuthoring.redis.host = 'localhost'" >/dev/null 2>&1
+
+# enable jwt token for browser, inbox and outbox
+
+json -I -f $DEFAULT_CONFIG -e "this.services.CoAuthoring.token.enable.browser = ${JWT_ENABLED}" >/dev/null 2>&1
+json -I -f $DEFAULT_CONFIG -e "this.services.CoAuthoring.token.enable.request.inbox = ${JWT_ENABLED}" >/dev/null 2>&1
+json -I -f $DEFAULT_CONFIG -e "this.services.CoAuthoring.token.enable.request.outbox = ${JWT_ENABLED}" >/dev/null 2>&1
+
+# set secret for session, inbox and outbox
+
+json -I -f $DEFAULT_CONFIG -e "this.services.CoAuthoring.secret.inbox.string = '${JWT_SECRET}'" >/dev/null 2>&1
+json -I -f $DEFAULT_CONFIG -e "this.services.CoAuthoring.secret.outbox.string = '${JWT_SECRET}'" >/dev/null 2>&1
+json -I -f $DEFAULT_CONFIG -e "this.services.CoAuthoring.secret.session.string = '${JWT_SECRET}'" >/dev/null 2>&1
+
+# set header, define in JWT_HEADER
+
+json -I -f $DEFAULT_CONFIG -e "this.services.CoAuthoring.token.inbox.header = '${JWT_HEADER}'" >/dev/null 2>&1
+json -I -f $DEFAULT_CONFIG -e "this.services.CoAuthoring.token.outbox.header = '${JWT_HEADER}'" >/dev/null 2>&1 
+
+if [ -f /usr/share/nextcloud/occ ]; then # check if nextcloud is installed
+
+    # Enable self-signed cert
+    grep -q -F "'onlyoffice' => array ( 'verify_peer_off' => TRUE)" /usr/share/nextcloud/config/config.php || sed -i '$i'"'onlyoffice'"' => array ( '"'verify_peer_off'"' => TRUE)' /usr/share/nextcloud/config/config.php
+
+    # Install onlyoffice app
+    sudo -u apache /opt/rh/rh-php71/root/usr/bin/php /usr/share/nextcloud/occ app:install onlyoffice
+
+    # Set DocumentServerUrl
+    export fqdn=`config get SystemName`.`config get DomainName`
+    export dshost=`config getprop fw_onlyoffice host || echo $fqdn`
+    sudo -u apache /opt/rh/rh-php71/root/usr/bin/php /usr/share/nextcloud/occ config:app:set onlyoffice DocumentServerUrl --value="https://$dshost:8082/"
+
+    # Set token secret
+    sudo -u apache /opt/rh/rh-php71/root/usr/bin/php /usr/share/nextcloud/occ config:app:set onlyoffice jwt_secret --value="$JWT_SECRET"
+
+    # Enable onlyoffice app
+    sudo -u apache /opt/rh/rh-php71/root/usr/bin/php /usr/share/nextcloud/occ app:enable onlyoffice
+
+fi
+
+# restart documentserver
+
 supervisorctl restart all
-
-# Enable self-signed cert
-grep -q -F "'onlyoffice' => array ( 'verify_peer_off' => TRUE)" /usr/share/nextcloud/config/config.php || sed -i '$i'"'onlyoffice'"' => array ( '"'verify_peer_off'"' => TRUE)' /usr/share/nextcloud/config/config.php
-
-# Install onlyoffice app
-sudo -u apache /opt/rh/rh-php71/root/usr/bin/php /usr/share/nextcloud/occ app:install onlyoffice
-
-# Set DocumentServerUrl
-export fqdn=`config get SystemName`.`config get DomainName`
-export dshost=`config getprop fw_onlyoffice host || echo $fqdn`
-sudo -u apache /opt/rh/rh-php71/root/usr/bin/php /usr/share/nextcloud/occ config:app:set onlyoffice DocumentServerUrl --value="https://$dshost:8082/"
-
-# Set token secret
-sudo -u apache /opt/rh/rh-php71/root/usr/bin/php /usr/share/nextcloud/occ config:app:set onlyoffice jwt_secret --value="`cat /var/lib/nethserver/secrets/onlyoffice`"
-
-# Enable onlyoffice app
-sudo -u apache /opt/rh/rh-php71/root/usr/bin/php /usr/share/nextcloud/occ app:enable onlyoffice
