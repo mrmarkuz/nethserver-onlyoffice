@@ -31,13 +31,14 @@ rm -rf %{buildroot}
 
 
 %changelog
-* Mon Apr 02 2018 Markus Neuberger <dev@markusneuberger.at> - 0.0.1-3
+* Sat Apr 07 2018 Markus Neuberger <dev@markusneuberger.at> - 0.0.1-3
 - check if database exists - thanks to @dnutan
 - check if nextcloud exists - thanks to @dnutan
 - tidy up conf action
 - remove documentserver script
 - make documentserver updates possible
 - use json import instead of templating defaults.json
+- remove install errors - thanks to @dnutan
 * Tue Mar 20 2018 Markus Neuberger <dev@markusneuberger.at> - 0.0.1-2
 - Secure access via JWT token - thanks to @dnutan
 - autoinstall of onlyoffice nextcloud app - thanks to @danb35
