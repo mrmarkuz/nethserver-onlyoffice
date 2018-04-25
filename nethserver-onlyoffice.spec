@@ -1,6 +1,6 @@
 Name: nethserver-onlyoffice
 Version: 0.0.1
-Release: 3%{?dist}
+Release: 4%{?dist}
 Summary: Onlyoffice document server for NethServer
 License: GPL
 Source0: %{name}-%{version}.tar.gz
@@ -31,6 +31,8 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Wed Apr 25 2018 Markus Neuberger <dev@markusneuberger.at> - 0.0.1-4
+- change spellchecker port 8080 to 48080 to not conflict with nethserver-tomcat
 * Sat Apr 07 2018 Markus Neuberger <dev@markusneuberger.at> - 0.0.1-3
 - check if database exists - thanks to @dnutan
 - check if nextcloud exists - thanks to @dnutan

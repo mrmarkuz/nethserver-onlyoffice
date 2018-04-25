@@ -52,6 +52,14 @@ $PSQL -d "onlyoffice" -f "$DIR/documentserver/server/schema/postgresql/createdb.
 
 npm list -g json >/dev/null 2>&1 || npm install -g json >/dev/null 2>&1
 
+# change port 8080 to 48080 for spellchecker to not conflict with tomcat
+
+json -I -f $DEFAULT_CONFIG -e "this.SpellChecker.server.port = 48080" >/dev/null 2>&1
+
+# change port 8080 to 48080 in nginx
+
+grep -q -F "48080" /etc/nginx/includes/onlyoffice-http.conf || sed -i 's/localhost:8080/localhost:48080/g' /etc/nginx/includes/onlyoffice-http.conf
+
 # postgres db settings
 
 json -I -f $DEFAULT_CONFIG -e "this.services.CoAuthoring.sql.dbHost = 'localhost'" >/dev/null 2>&1
