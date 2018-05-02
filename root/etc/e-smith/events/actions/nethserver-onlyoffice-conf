@@ -56,9 +56,9 @@ npm list -g json >/dev/null 2>&1 || npm install -g json >/dev/null 2>&1
 
 json -I -f $DEFAULT_CONFIG -e "this.SpellChecker.server.port = 48080" >/dev/null 2>&1
 
-# change port 8080 to 48080 in nginx
+# change port 8000 to 48000 for coauth to not conflict with webvirtmgr
 
-grep -q -F "48080" /etc/nginx/includes/onlyoffice-http.conf || sed -i 's/localhost:8080/localhost:48080/g' /etc/nginx/includes/onlyoffice-http.conf
+json -I -f $DEFAULT_CONFIG -e "this.services.CoAuthoring.server.port = 48000" >/dev/null 2>&1
 
 # postgres db settings
 
@@ -103,7 +103,7 @@ if [ -f /usr/share/nextcloud/occ ]; then # check if nextcloud is installed
     # Set DocumentServerUrl
     export fqdn=`config get SystemName`.`config get DomainName`
     export dshost=`config getprop fw_onlyoffice host || echo $fqdn`
-    sudo -u apache /opt/rh/rh-php71/root/usr/bin/php /usr/share/nextcloud/occ config:app:set onlyoffice DocumentServerUrl --value="https://$dshost:8082/"
+    sudo -u apache /opt/rh/rh-php71/root/usr/bin/php /usr/share/nextcloud/occ config:app:set onlyoffice DocumentServerUrl --value="https://$dshost:`config getprop fw_onlyoffice TCPPort`/"
 
     # Set token secret
     sudo -u apache /opt/rh/rh-php71/root/usr/bin/php /usr/share/nextcloud/occ config:app:set onlyoffice jwt_secret --value="$JWT_SECRET"

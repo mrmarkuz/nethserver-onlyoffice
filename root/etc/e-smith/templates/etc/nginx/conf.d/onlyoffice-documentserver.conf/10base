@@ -2,8 +2,10 @@ include /etc/nginx/includes/onlyoffice-http.conf;
 
 ## HTTPS host
 server \{
-  listen 0.0.0.0:8082 ssl;
-  listen [::]:8082 ssl default_server;
+{
+$OUT .= "  listen 0.0.0.0:$fw_onlyoffice{'TCPPort'} ssl;\n";
+$OUT .= "  listen [::]:$fw_onlyoffice{'TCPPort'} ssl default_server;\n";
+}
   server_tokens off;
   root /usr/share/nginx/html;
 
