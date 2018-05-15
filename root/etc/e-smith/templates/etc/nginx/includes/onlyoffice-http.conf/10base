@@ -1,34 +1,34 @@
-upstream docservice {
+upstream docservice \{
   server localhost:48000;
-}
+\}
 
-upstream spellchecker {
+upstream spellchecker \{
   server localhost:48080;
-}
+\}
 
-upstream example {
+upstream example \{
   server localhost:3000;
-}
+\}
 
-map $http_host $this_host {
+map $http_host $this_host \{
     "" $host;
     default $http_host;
-}
+\}
 
-map $http_x_forwarded_proto $the_scheme {
+map $http_x_forwarded_proto $the_scheme \{
      default $http_x_forwarded_proto;
      "" $scheme;
-}
+\}
 
-map $http_x_forwarded_host $the_host {
+map $http_x_forwarded_host $the_host \{
     default $http_x_forwarded_host;
     "" $this_host;
-}
+\}
 
-map $http_upgrade $proxy_connection {
+map $http_upgrade $proxy_connection \{
   default upgrade;
   "" close;
-}
+\}
 
 proxy_set_header Host $http_host;
 proxy_set_header Upgrade $http_upgrade;
