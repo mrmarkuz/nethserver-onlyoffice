@@ -31,7 +31,9 @@ rm -rf %{buildroot}
 
 
 %changelog
-* Wed Apr 25 2018 Markus Neuberger <dev@markusneuberger.at> - 0.0.1-4
+* Fri Sep 21 2018 Markus Neuberger <dev@markusneuberger.at> - 0.0.1-4
+- add RejectUnauthorized prop to make it work with self-signed certs 
+- remove rabbitmq-server requirement
 - change spellchecker port 8080 to 48080 to not conflict with nethserver-tomcat
 * Sat Apr 07 2018 Markus Neuberger <dev@markusneuberger.at> - 0.0.1-3
 - check if database exists - thanks to @dnutan
