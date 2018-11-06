@@ -1,6 +1,6 @@
 Name: nethserver-onlyoffice
 Version: 0.0.1
-Release: 4%{?dist}
+Release: 5%{?dist}
 Summary: Onlyoffice document server for NethServer
 License: GPL
 Source0: %{name}-%{version}.tar.gz
@@ -31,6 +31,8 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Wed Nov 07 2018 Markus Neuberger <dev@markusneuberger.at> - 0.0.1-5
+- Change config file owner to work with versions newer than 5.2 - thanks to giacomo
 * Fri Sep 21 2018 Markus Neuberger <dev@markusneuberger.at> - 0.0.1-4
 - add RejectUnauthorized prop to make it work with self-signed certs 
 - remove rabbitmq-server requirement

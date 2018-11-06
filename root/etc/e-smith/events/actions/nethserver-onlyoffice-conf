@@ -120,6 +120,10 @@ if [ -f /usr/share/nextcloud/occ ]; then # check if nextcloud is installed
     sudo -u apache /opt/rh/rh-php71/root/usr/bin/php /usr/share/nextcloud/occ app:enable onlyoffice
 fi
 
+# set owner of config file to onlyoffice
+
+chown onlyoffice:onlyoffice $DEFAULT_CONFIG
+
 # enable services - integrate?
 
 systemctl enable supervisord --now
