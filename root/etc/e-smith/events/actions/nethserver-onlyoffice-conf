@@ -3,6 +3,9 @@
 # set firewall port
 
 config show fw_onlyoffice > /dev/null || config set fw_onlyoffice service status enabled TCPPort 8082 access red,green
+[ -f /etc/nginx/conf.d/onlyoffice-documentserver.conf ] && rm -f /etc/nginx/conf.d/onlyoffice-documentserver.conf
+[ -f /etc/nginx/includes/onlyoffice-http.conf ] && rm -f /etc/nginx/includes/onlyoffice-http.conf
+expand-template /etc/nginx/conf.d/ds.conf
 signal-event firewall-adjust
 
 # create password if not exist
@@ -122,7 +125,7 @@ fi
 
 # set owner of config file to onlyoffice
 
-chown onlyoffice:onlyoffice $DEFAULT_CONFIG
+chown ds:ds $DEFAULT_CONFIG
 
 # enable services - integrate?
 

@@ -1,6 +1,6 @@
 Name: nethserver-onlyoffice
 Version: 0.0.1
-Release: 6%{?dist}
+Release: 7%{?dist}
 Summary: Onlyoffice document server for NethServer
 License: GPL
 Source0: %{name}-%{version}.tar.gz
@@ -31,6 +31,8 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Wed Sep 04 2019 Markus Neuberger <dev@markusneuberger.at> - 0.0.1-6
+- Change config file and user
 * Wed Nov 07 2018 Markus Neuberger <dev@markusneuberger.at> - 0.0.1-5
 - Change config file owner to work with versions newer than 5.2 - thanks to giacomo
 * Fri Sep 21 2018 Markus Neuberger <dev@markusneuberger.at> - 0.0.1-4

@@ -1,4 +1,4 @@
-include /etc/nginx/includes/onlyoffice-http.conf;
+include /etc/nginx/includes/http-common.conf;
 
 ## HTTPS host
 server \{
@@ -44,6 +44,6 @@ $OUT .= "  listen [::]:$fw_onlyoffice{'TCPPort'} ssl default_server;\n";
   ##
   # ssl_dhparam /etc/ssl/certs/dhparam.pem;
 
-  include /etc/nginx/includes/onlyoffice-documentserver-*.conf;
+  include /etc/nginx/includes/ds-*.conf;
 
 \}

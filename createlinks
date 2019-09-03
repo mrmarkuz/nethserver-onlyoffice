@@ -34,8 +34,8 @@ event_actions($event, qw(
 ));
 
 event_templates($event, qw(
-    /etc/nginx/conf.d/onlyoffice-documentserver.conf
-    /etc/nginx/includes/onlyoffice-http.conf
+    /etc/nginx/conf.d/ds.conf
+    /etc/nginx/includes/http-common.conf
     /var/lib/pgsql/data/pg_hba.conf
 ));
 
