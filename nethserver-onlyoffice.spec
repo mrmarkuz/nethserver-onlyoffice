@@ -31,7 +31,6 @@ rm -rf %{buildroot}
 
 
 %changelog
-<<<<<<< HEAD
 * Wed Sep 28 2019 Markus Neuberger <dev@markusneuberger.at> - 0.0.1-8
 - Add stronger password for working with Webtop - thanks to Klaus Boehme
 - Add Webtop support
