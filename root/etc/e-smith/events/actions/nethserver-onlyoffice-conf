@@ -10,7 +10,7 @@ signal-event firewall-adjust
 
 # create password if not exist
 
-perl -e"use esmith::util;NethServer::Password::store('onlyoffice') || die('Could not generate onlyoffice password');"
+perl -e"use esmith::util;NethServer::Password::store('onlyoffice'{'length' => 32}) || die('Could not generate onlyoffice password');"
 
 # configure onlyoffice
 
