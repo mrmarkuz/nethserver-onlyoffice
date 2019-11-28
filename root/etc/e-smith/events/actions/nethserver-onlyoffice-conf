@@ -8,9 +8,13 @@ config show fw_onlyoffice > /dev/null || config set fw_onlyoffice service status
 expand-template /etc/nginx/conf.d/ds.conf
 signal-event firewall-adjust
 
+# Delete password to force recreation if length < 32 - needed for Webtop - thanks to Klaus Boehme
+
+if [ $(stat -c%s "/var/lib/nethserver/secrets/onlyoffice") -lt 33 ]; then rm -f /var/lib/nethserver/secrets/onlyoffice; fi
+
 # create password if not exist
 
-perl -e"use esmith::util;NethServer::Password::store('onlyoffice') || die('Could not generate onlyoffice password');"
+perl -e"use esmith::util;NethServer::Password->new('onlyoffice',{'length' => 32})->save()->getAscii() || die('Could not generate onlyoffice password');"
 
 # configure onlyoffice
 
@@ -121,6 +125,53 @@ if [ -f /usr/share/nextcloud/occ ]; then # check if nextcloud is installed
 
     # Enable onlyoffice app
     sudo -u apache /opt/rh/rh-php72/root/usr/bin/php /usr/share/nextcloud/occ app:enable onlyoffice
+fi
+
+# check if webtop5 db is present to add onlyoffice config and restart webtop
+
+su - postgres -c "psql -lqt | cut -d \| -f 1 | grep -q -w webtop5"
+if [ $? -eq 1 ]; then
+
+su - postgres -c "psql webtop5" <<EOF
+INSERT INTO core.settings(service_id, key, value)
+    SELECT 'com.sonicle.webtop.core', 'documentserver.secret.in', '$(cat /var/lib/nethserver/secrets/onlyoffice)'
+WHERE NOT EXISTS (
+    SELECT 1 FROM core.settings WHERE key='documentserver.secret.in'
+);
+
+INSERT INTO core.settings(service_id, key, value)
+    SELECT 'com.sonicle.webtop.core', 'documentserver.secret.out', '$(cat /var/lib/nethserver/secrets/onlyoffice)'
+WHERE NOT EXISTS (
+    SELECT 1 FROM core.settings WHERE key='documentserver.secret.out'
+);
+
+INSERT INTO core.settings(service_id, key, value)
+    SELECT 'com.sonicle.webtop.core', 'documentserver.loopback.url', 'https://$(config getprop fw_onlyoffice host)/webtop'
+WHERE NOT EXISTS (
+    SELECT 1 FROM core.settings WHERE key='documentserver.loopback.url'
+);
+
+INSERT INTO core.settings(service_id, key, value)
+    SELECT 'com.sonicle.webtop.core', 'documentserver.public.url', 'https://$(config getprop fw_onlyoffice host):8082'
+WHERE NOT EXISTS (
+    SELECT 1 FROM core.settings WHERE key='documentserver.public.url'
+);
+
+INSERT INTO core.settings(service_id, key, value)
+    SELECT 'com.sonicle.webtop.core', 'documentserver.enabled', 'true'
+WHERE NOT EXISTS (
+    SELECT 1 FROM core.settings WHERE key='documentserver.enabled'
+);
+
+UPDATE core.settings SET service_id='com.sonicle.webtop.core', key='documentserver.secret.in', value='$(cat /var/lib/nethserver/secrets/onlyoffice)' WHERE key='documentserver.secret.in';
+UPDATE core.settings SET service_id='com.sonicle.webtop.core', key='documentserver.secret.out', value='$(cat /var/lib/nethserver/secrets/onlyoffice)' WHERE key='documentserver.secret.out';
+UPDATE core.settings SET service_id='com.sonicle.webtop.core', key='documentserver.loopback.url', value='https://$(config getprop fw_onlyoffice host)/webtop' WHERE key='documentserver.loopback.url';
+UPDATE core.settings SET service_id='com.sonicle.webtop.core', key='documentserver.public.url', value='https://$(config getprop fw_onlyoffice host):8082' WHERE key='documentserver.public.url';
+UPDATE core.settings SET service_id='com.sonicle.webtop.core', key='documentserver.enabled', value='true' WHERE key='documentserver.enabled';
+EOF
+
+systemctl restart tomcat8@webtop
+
 fi
 
 # set owner of config file to onlyoffice

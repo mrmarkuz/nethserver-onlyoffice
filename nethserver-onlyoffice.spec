@@ -1,6 +1,6 @@
 Name: nethserver-onlyoffice
 Version: 0.0.1
-Release: 7%{?dist}
+Release: 8%{?dist}
 Summary: Onlyoffice document server for NethServer
 License: GPL
 Source0: %{name}-%{version}.tar.gz
@@ -31,7 +31,10 @@ rm -rf %{buildroot}
 
 
 %changelog
-* Wed Sep 04 2019 Markus Neuberger <dev@markusneuberger.at> - 0.0.1-6
+* Wed Sep 28 2019 Markus Neuberger <dev@markusneuberger.at> - 0.0.1-8
+- Add stronger password for working with Webtop - thanks to Klaus Boehme
+- Add Webtop support
+* Wed Sep 04 2019 Markus Neuberger <dev@markusneuberger.at> - 0.0.1-7
 - Change config file and user
 * Wed Nov 07 2018 Markus Neuberger <dev@markusneuberger.at> - 0.0.1-5
 - Change config file owner to work with versions newer than 5.2 - thanks to giacomo
