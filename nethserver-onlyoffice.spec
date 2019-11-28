@@ -31,15 +31,16 @@ rm -rf %{buildroot}
 
 
 %changelog
+<<<<<<< HEAD
 * Wed Sep 28 2019 Markus Neuberger <dev@markusneuberger.at> - 0.0.1-8
 - Add stronger password for working with Webtop - thanks to Klaus Boehme
 - Add Webtop support
 * Wed Sep 04 2019 Markus Neuberger <dev@markusneuberger.at> - 0.0.1-7
 - Change config file and user
-* Wed Nov 07 2018 Markus Neuberger <dev@markusneuberger.at> - 0.0.1-5
+* Wed Nov 07 2018 Markus Neuberger <dev@markusneuberger.at> - 0.0.1-6
 - Change config file owner to work with versions newer than 5.2 - thanks to giacomo
 * Fri Sep 21 2018 Markus Neuberger <dev@markusneuberger.at> - 0.0.1-4
-- add RejectUnauthorized prop to make it work with self-signed certs 
+- add RejectUnauthorized prop to make it work with self-signed certs
 - remove rabbitmq-server requirement
 - change spellchecker port 8080 to 48080 to not conflict with nethserver-tomcat
 * Sat Apr 07 2018 Markus Neuberger <dev@markusneuberger.at> - 0.0.1-3
