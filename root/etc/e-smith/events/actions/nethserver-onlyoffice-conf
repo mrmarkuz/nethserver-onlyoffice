@@ -107,6 +107,12 @@ json -I -f $DEFAULT_CONFIG -e "this.services.CoAuthoring.token.outbox.header = '
 
 json -I -f $DEFAULT_CONFIG -e "this.services.CoAuthoring.requestDefaults.rejectUnauthorized = ${REJECT_UNAUTHORIZED}" >/dev/null 2>&1
 
+# get fqdn and dshost
+
+export fqdn=`config get SystemName`.`config get DomainName`
+
+[ -z "$(config getprop fw_onlyoffice host)" ] && export dshost=$fqdn || export dshost=$(config getprop fw_onlyoffice host)
+
 if [ -f /usr/share/nextcloud/occ ]; then # check if nextcloud is installed
 
     # Enable self-signed cert
@@ -116,8 +122,6 @@ if [ -f /usr/share/nextcloud/occ ]; then # check if nextcloud is installed
     sudo -u apache /opt/rh/rh-php72/root/usr/bin/php /usr/share/nextcloud/occ app:install onlyoffice
 
     # Set DocumentServerUrl
-    export fqdn=`config get SystemName`.`config get DomainName`
-    export dshost=`config getprop fw_onlyoffice host || echo $fqdn`
     sudo -u apache /opt/rh/rh-php72/root/usr/bin/php /usr/share/nextcloud/occ config:app:set onlyoffice DocumentServerUrl --value="https://$dshost:`config getprop fw_onlyoffice TCPPort`/"
 
     # Set token secret
@@ -130,7 +134,8 @@ fi
 # check if webtop5 db is present to add onlyoffice config and restart webtop
 
 su - postgres -c "psql -lqt | cut -d \| -f 1 | grep -q -w webtop5"
-if [ $? -eq 1 ]; then
+
+if [ $? -eq 0 ]; then
 
 su - postgres -c "psql webtop5" <<EOF
 INSERT INTO core.settings(service_id, key, value)
@@ -146,13 +151,13 @@ WHERE NOT EXISTS (
 );
 
 INSERT INTO core.settings(service_id, key, value)
-    SELECT 'com.sonicle.webtop.core', 'documentserver.loopback.url', 'https://$(config getprop fw_onlyoffice host)/webtop'
+    SELECT 'com.sonicle.webtop.core', 'documentserver.loopback.url', 'https://$dshost/webtop'
 WHERE NOT EXISTS (
     SELECT 1 FROM core.settings WHERE key='documentserver.loopback.url'
 );
 
 INSERT INTO core.settings(service_id, key, value)
-    SELECT 'com.sonicle.webtop.core', 'documentserver.public.url', 'https://$(config getprop fw_onlyoffice host):8082'
+    SELECT 'com.sonicle.webtop.core', 'documentserver.public.url', 'https://$dshost:`config getprop fw_onlyoffice TCPPort`'
 WHERE NOT EXISTS (
     SELECT 1 FROM core.settings WHERE key='documentserver.public.url'
 );
@@ -165,8 +170,8 @@ WHERE NOT EXISTS (
 
 UPDATE core.settings SET service_id='com.sonicle.webtop.core', key='documentserver.secret.in', value='$(cat /var/lib/nethserver/secrets/onlyoffice)' WHERE key='documentserver.secret.in';
 UPDATE core.settings SET service_id='com.sonicle.webtop.core', key='documentserver.secret.out', value='$(cat /var/lib/nethserver/secrets/onlyoffice)' WHERE key='documentserver.secret.out';
-UPDATE core.settings SET service_id='com.sonicle.webtop.core', key='documentserver.loopback.url', value='https://$(config getprop fw_onlyoffice host)/webtop' WHERE key='documentserver.loopback.url';
-UPDATE core.settings SET service_id='com.sonicle.webtop.core', key='documentserver.public.url', value='https://$(config getprop fw_onlyoffice host):8082' WHERE key='documentserver.public.url';
+UPDATE core.settings SET service_id='com.sonicle.webtop.core', key='documentserver.loopback.url', value='https://$dshost/webtop' WHERE key='documentserver.loopback.url';
+UPDATE core.settings SET service_id='com.sonicle.webtop.core', key='documentserver.public.url', value='https://$dshost:`config getprop fw_onlyoffice TCPPort`' WHERE key='documentserver.public.url';
 UPDATE core.settings SET service_id='com.sonicle.webtop.core', key='documentserver.enabled', value='true' WHERE key='documentserver.enabled';
 EOF
 
