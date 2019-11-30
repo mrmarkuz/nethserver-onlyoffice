@@ -188,12 +188,3 @@ fi
 # set owner of config file to onlyoffice
 
 chown ds:ds $DEFAULT_CONFIG
-
-# enable services - integrate?
-
-#systemctl enable supervisord --now
-#systemctl enable rabbitmq-server --now
-
-# restart documentserver - integrate?
-
-#supervisorctl restart all
