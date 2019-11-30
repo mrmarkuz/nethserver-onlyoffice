@@ -12,9 +12,13 @@ signal-event firewall-adjust
 
 if [ $(stat -c%s "/var/lib/nethserver/secrets/onlyoffice") -lt 33 ]; then rm -f /var/lib/nethserver/secrets/onlyoffice; fi
 
-# create password if not exist
+# create jwt password if not exist
 
-perl -e"use esmith::util;NethServer::Password->new('onlyoffice',{'length' => 32})->save()->getAscii() || die('Could not generate onlyoffice password');"
+perl -e"use esmith::util;NethServer::Password->new('onlyoffice',{'length' => 32})->save()->getAscii() || die('Could not generate onlyoffice jwt password');"
+
+# create onlyoffice postgres password
+
+perl -e"use esmith::util;NethServer::Password::store('onlyofficepg') || die('Could not generate onlyoffice postgres password');"
 
 # configure onlyoffice
 
@@ -39,7 +43,7 @@ if [[ -n `config getprop fw_onlyoffice RejectUnauthorized` ]]; then REJECT_UNAUT
 
 # create database if not exist
 
-export PGPASSWORD=onlyoffice
+export PGPASSWORD=`cat /var/lib/nethserver/secrets/onlyofficepg`
 CONNECTION_PARAMS="-hlocalhost -Uonlyoffice -w"
 PSQL="psql -q $CONNECTION_PARAMS"
 CREATEDB="createdb -q $CONNECTION_PARAMS"
@@ -47,8 +51,10 @@ CREATEDB="createdb -q $CONNECTION_PARAMS"
 su - postgres -c "psql -lqt | cut -d \| -f 1 | grep -q -w onlyoffice"
 if [ $? -eq 1 ]; then # database do not exists
   su - postgres -c 'psql -c "CREATE DATABASE onlyoffice;"'
-  su - postgres -c "psql -c \"CREATE USER onlyoffice WITH password 'onlyoffice';\""
+  su - postgres -c "psql -c \"CREATE USER onlyoffice WITH password '$PGPASSWORD';\""
   su - postgres -c 'psql -c "GRANT ALL privileges ON DATABASE onlyoffice TO onlyoffice;"'
+else
+  su - postgres -c "psql -c \"ALTER USER onlyoffice WITH password '$PGPASSWORD';\""
 fi
 
 # check if db works correctly
@@ -76,7 +82,7 @@ json -I -f $DEFAULT_CONFIG -e "this.services.CoAuthoring.server.port = 48000" >/
 json -I -f $DEFAULT_CONFIG -e "this.services.CoAuthoring.sql.dbHost = 'localhost'" >/dev/null 2>&1
 json -I -f $DEFAULT_CONFIG -e "this.services.CoAuthoring.sql.dbName= 'onlyoffice'" >/dev/null 2>&1
 json -I -f $DEFAULT_CONFIG -e "this.services.CoAuthoring.sql.dbUser = 'onlyoffice'" >/dev/null 2>&1
-json -I -f $DEFAULT_CONFIG -e "this.services.CoAuthoring.sql.dbPass = 'onlyoffice'" >/dev/null 2>&1
+json -I -f $DEFAULT_CONFIG -e "this.services.CoAuthoring.sql.dbPass = ${PGPASSWORD}" >/dev/null 2>&1
 
 # RabbitMQ
 
@@ -185,9 +191,9 @@ chown ds:ds $DEFAULT_CONFIG
 
 # enable services - integrate?
 
-systemctl enable supervisord --now
-systemctl enable rabbitmq-server --now
+#systemctl enable supervisord --now
+#systemctl enable rabbitmq-server --now
 
 # restart documentserver - integrate?
 
-supervisorctl restart all
+#supervisorctl restart all

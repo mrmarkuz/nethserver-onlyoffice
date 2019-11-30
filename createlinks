@@ -43,6 +43,6 @@ event_services($event, qw(
     nginx restart
     postgresql restart
     redis restart
-    supervisor restart
+    supervisord restart
     rabbitmq-server restart
 ));
