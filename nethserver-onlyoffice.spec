@@ -1,6 +1,6 @@
 Name: nethserver-onlyoffice
 Version: 0.0.1
-Release: 8%{?dist}
+Release: 9%{?dist}
 Summary: Onlyoffice document server for NethServer
 License: GPL
 Source0: %{name}-%{version}.tar.gz
@@ -32,8 +32,8 @@ rm -rf %{buildroot}
 
 %changelog
 * Fri Apr 17 2020 Markus Neuberger <dev@markusneuberger.at> - 0.0.1-9
-- Use jq instead of npm json
-- Fixed php memory error
+- Use jq instead of npm json - thanks to Klaus Boehme
+- Fix php memory error
 * Wed Sep 28 2019 Markus Neuberger <dev@markusneuberger.at> - 0.0.1-8
 - Add stronger password for working with Webtop - thanks to Klaus Boehme
 - Add Webtop support
