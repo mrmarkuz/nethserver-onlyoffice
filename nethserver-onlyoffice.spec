@@ -7,7 +7,7 @@ Source0: %{name}-%{version}.tar.gz
 BuildArch: noarch
 BuildRequires: nethserver-devtools
 Requires: nethserver-postgresql,nethserver-redis,nethserver-nginx,onlyoffice-documentserver
-Requires: rabbitmq-server,supervisor,rh-php72-php-cli
+Requires: rabbitmq-server,supervisor,rh-php73-php-cli
 
 %description
 Onlyoffice document server for for NethServer, a web based document editor server
