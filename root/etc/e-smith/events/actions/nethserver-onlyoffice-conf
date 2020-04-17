@@ -112,16 +112,16 @@ if [ -f /usr/share/nextcloud/occ ]; then # check if nextcloud is installed
     grep -q -F "'onlyoffice' => array ( 'verify_peer_off' => TRUE)" /usr/share/nextcloud/config/config.php || sed -i '$i'"'onlyoffice'"' => array ( '"'verify_peer_off'"' => TRUE)' /usr/share/nextcloud/config/config.php
 
     # Install onlyoffice app
-    sudo -u apache /opt/rh/rh-php72/root/usr/bin/php /usr/share/nextcloud/occ app:install onlyoffice
+    sudo -u apache /opt/rh/rh-php72/root/usr/bin/php -d memory_limit=512M /usr/share/nextcloud/occ app:install onlyoffice
 
     # Set DocumentServerUrl
-    sudo -u apache /opt/rh/rh-php72/root/usr/bin/php /usr/share/nextcloud/occ config:app:set onlyoffice DocumentServerUrl --value="https://$dshost:`config getprop fw_onlyoffice TCPPort`/"
+    sudo -u apache /opt/rh/rh-php72/root/usr/bin/php -d memory_limit=512M /usr/share/nextcloud/occ config:app:set onlyoffice DocumentServerUrl --value="https://$dshost:`config getprop fw_onlyoffice TCPPort`/"
 
     # Set token secret
-    sudo -u apache /opt/rh/rh-php72/root/usr/bin/php /usr/share/nextcloud/occ config:app:set onlyoffice jwt_secret --value="$JWT_SECRET"
+    sudo -u apache /opt/rh/rh-php72/root/usr/bin/php -d memory_limit=512M /usr/share/nextcloud/occ config:app:set onlyoffice jwt_secret --value="$JWT_SECRET"
 
     # Enable onlyoffice app
-    sudo -u apache /opt/rh/rh-php72/root/usr/bin/php /usr/share/nextcloud/occ app:enable onlyoffice
+    sudo -u apache /opt/rh/rh-php72/root/usr/bin/php -d memory_limit=512M /usr/share/nextcloud/occ app:enable onlyoffice
 fi
 
 # check if webtop5 db is present to add onlyoffice config and restart webtop
