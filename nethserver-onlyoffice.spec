@@ -31,6 +31,9 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Fri Apr 17 2020 Markus Neuberger <dev@markusneuberger.at> - 0.0.1-9
+- Use jq instead of npm json
+- Fixed php memory error
 * Wed Sep 28 2019 Markus Neuberger <dev@markusneuberger.at> - 0.0.1-8
 - Add stronger password for working with Webtop - thanks to Klaus Boehme
 - Add Webtop support

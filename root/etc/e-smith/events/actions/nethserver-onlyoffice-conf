@@ -65,53 +65,40 @@ $PSQL -c ";" >/dev/null 2>&1 || { echo "FAILURE"; exit 1; }
 
 $PSQL -d "onlyoffice" -f "$DIR/documentserver/server/schema/postgresql/createdb.sql" >/dev/null 2>&1
 
-# install json
-
-npm list -g json >/dev/null 2>&1 || npm install -g json >/dev/null 2>&1
-
 # change port 8080 to 48080 for spellchecker to not conflict with tomcat
-
-json -I -f $DEFAULT_CONFIG -e "this.SpellChecker.server.port = 48080" >/dev/null 2>&1
+jq -r ".SpellChecker.server.port = 48080" $DEFAULT_CONFIG > temp.json && mv -f temp.json $DEFAULT_CONFIG
 
 # change port 8000 to 48000 for coauth to not conflict with webvirtmgr
-
-json -I -f $DEFAULT_CONFIG -e "this.services.CoAuthoring.server.port = 48000" >/dev/null 2>&1
+jq -r ".services.CoAuthoring.server.port = 48000" $DEFAULT_CONFIG > temp.json && mv -f temp.json $DEFAULT_CONFIG
 
 # postgres db settings
-
-json -I -f $DEFAULT_CONFIG -e "this.services.CoAuthoring.sql.dbHost = 'localhost'" >/dev/null 2>&1
-json -I -f $DEFAULT_CONFIG -e "this.services.CoAuthoring.sql.dbName= 'onlyoffice'" >/dev/null 2>&1
-json -I -f $DEFAULT_CONFIG -e "this.services.CoAuthoring.sql.dbUser = 'onlyoffice'" >/dev/null 2>&1
-json -I -f $DEFAULT_CONFIG -e "this.services.CoAuthoring.sql.dbPass = ${PGPASSWORD}" >/dev/null 2>&1
+jq -r ".services.CoAuthoring.sql.dbHost = \"localhost\"" $DEFAULT_CONFIG > temp.json && mv -f temp.json $DEFAULT_CONFIG
+jq -r ".services.CoAuthoring.sql.dbName= \"onlyoffice\"" $DEFAULT_CONFIG > temp.json && mv -f temp.json $DEFAULT_CONFIG
+jq -r ".services.CoAuthoring.sql.dbUser = \"onlyoffice\"" $DEFAULT_CONFIG > temp.json && mv -f temp.json $DEFAULT_CONFIG
+jq -r ".services.CoAuthoring.sql.dbPass = \"${PGPASSWORD}\"" $DEFAULT_CONFIG > temp.json && mv -f temp.json $DEFAULT_CONFIG
 
 # RabbitMQ
-
-json -I -f $DEFAULT_CONFIG -e "this.rabbitmq.url = 'amqp://guest:guest@localhost'" >/dev/null 2>&1
+jq -r ".rabbitmq.url = \"amqp://guest:guest@localhost\"" $DEFAULT_CONFIG > temp.json && mv -f temp.json $DEFAULT_CONFIG
 
 # redis
-
-json -I -f $DEFAULT_CONFIG -e "this.services.CoAuthoring.redis.host = 'localhost'" >/dev/null 2>&1
+jq -r ".services.CoAuthoring.redis.host = \"localhost\"" $DEFAULT_CONFIG > temp.json && mv -f temp.json $DEFAULT_CONFIG
 
 # enable jwt token for browser, inbox and outbox
-
-json -I -f $DEFAULT_CONFIG -e "this.services.CoAuthoring.token.enable.browser = ${JWT_ENABLED}" >/dev/null 2>&1
-json -I -f $DEFAULT_CONFIG -e "this.services.CoAuthoring.token.enable.request.inbox = ${JWT_ENABLED}" >/dev/null 2>&1
-json -I -f $DEFAULT_CONFIG -e "this.services.CoAuthoring.token.enable.request.outbox = ${JWT_ENABLED}" >/dev/null 2>&1
+jq -r ".services.CoAuthoring.token.enable.browser = ${JWT_ENABLED}" $DEFAULT_CONFIG > temp.json && mv -f temp.json $DEFAULT_CONFIG
+jq -r ".services.CoAuthoring.token.enable.request.inbox = ${JWT_ENABLED}" $DEFAULT_CONFIG > temp.json && mv -f temp.json $DEFAULT_CONFIG
+jq -r ".services.CoAuthoring.token.enable.request.outbox = ${JWT_ENABLED}" $DEFAULT_CONFIG > temp.json && mv -f temp.json $DEFAULT_CONFIG
 
 # set secret for session, inbox and outbox
-
-json -I -f $DEFAULT_CONFIG -e "this.services.CoAuthoring.secret.inbox.string = '${JWT_SECRET}'" >/dev/null 2>&1
-json -I -f $DEFAULT_CONFIG -e "this.services.CoAuthoring.secret.outbox.string = '${JWT_SECRET}'" >/dev/null 2>&1
-json -I -f $DEFAULT_CONFIG -e "this.services.CoAuthoring.secret.session.string = '${JWT_SECRET}'" >/dev/null 2>&1
+jq -r ".services.CoAuthoring.secret.inbox.string = \"${JWT_SECRET}\"" $DEFAULT_CONFIG > temp.json && mv -f temp.json $DEFAULT_CONFIG
+jq -r ".services.CoAuthoring.secret.outbox.string = \"${JWT_SECRET}\"" $DEFAULT_CONFIG > temp.json && mv -f temp.json $DEFAULT_CONFIG
+jq -r ".services.CoAuthoring.secret.session.string = \"${JWT_SECRET}\"" $DEFAULT_CONFIG > temp.json && mv -f temp.json $DEFAULT_CONFIG
 
 # set header, define in JWT_HEADER
-
-json -I -f $DEFAULT_CONFIG -e "this.services.CoAuthoring.token.inbox.header = '${JWT_HEADER}'" >/dev/null 2>&1
-json -I -f $DEFAULT_CONFIG -e "this.services.CoAuthoring.token.outbox.header = '${JWT_HEADER}'" >/dev/null 2>&1 
+jq -r ".services.CoAuthoring.token.inbox.header = \"${JWT_HEADER}\"" $DEFAULT_CONFIG > temp.json && mv -f temp.json $DEFAULT_CONFIG
+jq -r ".services.CoAuthoring.token.outbox.header = \"${JWT_HEADER}\"" $DEFAULT_CONFIG > temp.json && mv -f temp.json $DEFAULT_CONFIG
 
 # Allow unauthorized SSL if enabled
-
-json -I -f $DEFAULT_CONFIG -e "this.services.CoAuthoring.requestDefaults.rejectUnauthorized = ${REJECT_UNAUTHORIZED}" >/dev/null 2>&1
+jq -r ".services.CoAuthoring.requestDefaults.rejectUnauthorized = ${REJECT_UNAUTHORIZED}" $DEFAULT_CONFIG > temp.json && mv -f temp.json $DEFAULT_CONFIG
 
 # get fqdn and dshost
 
