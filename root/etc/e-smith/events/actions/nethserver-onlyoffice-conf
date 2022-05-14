@@ -3,6 +3,7 @@
 # set firewall port
 
 config show fw_onlyoffice > /dev/null || config set fw_onlyoffice service status enabled TCPPort 8082 access red,green
+config getprop fw_onlyoffice NCPort || config setprop fw_onlyoffice NCPort 8082
 [ -f /etc/nginx/conf.d/onlyoffice-documentserver.conf ] && rm -f /etc/nginx/conf.d/onlyoffice-documentserver.conf
 [ -f /etc/nginx/includes/onlyoffice-http.conf ] && rm -f /etc/nginx/includes/onlyoffice-http.conf
 expand-template /etc/nginx/conf.d/ds.conf
@@ -115,7 +116,7 @@ if [ -f /usr/share/nextcloud/occ ]; then # check if nextcloud is installed
     occ app:install onlyoffice
 
     # Set DocumentServerUrl
-    occ config:app:set onlyoffice DocumentServerUrl --value="https://$dshost:`config getprop fw_onlyoffice TCPPort`/"
+    occ config:app:set onlyoffice DocumentServerUrl --value="https://$dshost:`config getprop fw_onlyoffice NCPort`/"
 
     # Set token secret
     occ config:app:set onlyoffice jwt_secret --value="$JWT_SECRET"

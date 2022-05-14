@@ -1,6 +1,6 @@
 Name: nethserver-onlyoffice
 Version: 0.0.2
-Release: 1%{?dist}
+Release: 2%{?dist}
 Summary: Onlyoffice document server for NethServer
 License: GPL
 Source0: %{name}-%{version}.tar.gz
@@ -31,6 +31,8 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Sun May 15 2022 Markus Neuberger <dev@markusneuberger.at> - 0.0.2-2
+- Add NCPort to define another port in case of reverse proxy
 * Tue Sep 07 2021 Markus Neuberger <dev@markusneuberger.at> - 0.0.2-1
 - Fix Nextcloud configuration - thanks to Roberto Schiano
 * Fri Apr 17 2020 Markus Neuberger <dev@markusneuberger.at> - 0.0.1-9
