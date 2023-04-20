@@ -1,9 +1,5 @@
 upstream docservice \{
-  server localhost:48000;
-\}
-
-upstream spellchecker \{
-  server localhost:48080;
+  server localhost:48000 max_fails=0 fail_timeout=0s;
 \}
 
 upstream example \{

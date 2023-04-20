@@ -1,3 +1,14 @@
+#include /etc/nginx/includes/http-common.conf;
+#server {
+#  listen 0.0.0.0:80;
+#  listen [::]:80 default_server;
+#  server_tokens off;
+#
+#  set $secure_link_secret verysecretstring;
+#  include /etc/nginx/includes/ds-*.conf;
+#}
+
+
 include /etc/nginx/includes/http-common.conf;
 
 ## HTTPS host
@@ -43,6 +54,12 @@ $OUT .= "  listen [::]:$fw_onlyoffice{'TCPPort'} ssl default_server;\n";
   ##   sudo openssl dhparam -out dhparam.pem 4096
   ##
   # ssl_dhparam /etc/ssl/certs/dhparam.pem;
+
+{
+    use esmith::util;
+    my $password = NethServer::Password::store('onlyofficesecret') || die('Could not generate onlyoffice secret password!');
+    $OUT .= "  set \$secure_link_secret $password;\n";
+}
 
   include /etc/nginx/includes/ds-*.conf;
 

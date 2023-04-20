@@ -1,13 +1,13 @@
 Name: nethserver-onlyoffice
-Version: 0.0.2
-Release: 2%{?dist}
+Version: 0.0.3
+Release: 1%{?dist}
 Summary: Onlyoffice document server for NethServer
 License: GPL
 Source0: %{name}-%{version}.tar.gz
 BuildArch: noarch
 BuildRequires: nethserver-devtools
 Requires: nethserver-postgresql,nethserver-redis,nethserver-nginx,onlyoffice-documentserver
-Requires: rabbitmq-server,supervisor,rh-php73-php-cli
+Requires: rabbitmq-server,rh-php73-php-cli
 
 %description
 Onlyoffice document server for for NethServer, a web based document editor server
@@ -31,6 +31,10 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Thu Feb 20 2023 Markus Neuberger <dev@markusneuberger.at> - 0.0.3-1
+- Change from supervisord to systemd
+- Add Secret String
+- Add DB upgrades
 * Sun May 15 2022 Markus Neuberger <dev@markusneuberger.at> - 0.0.2-2
 - Add NCPort to define another port in case of reverse proxy
 * Tue Sep 07 2021 Markus Neuberger <dev@markusneuberger.at> - 0.0.2-1

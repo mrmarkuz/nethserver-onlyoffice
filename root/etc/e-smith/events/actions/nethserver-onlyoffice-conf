@@ -21,6 +21,10 @@ perl -e"use esmith::util;NethServer::Password->new('onlyoffice',{'length' => 32}
 
 perl -e"use esmith::util;NethServer::Password::store('onlyofficepg') || die('Could not generate onlyoffice postgres password');"
 
+# create onlyoffice secret string
+
+perl -e"use esmith::util;NethServer::Password::store('onlyofficesecret') || die('Could not generate onlyoffice secret string');"
+
 # configure onlyoffice
 
 DIR="/var/www/onlyoffice"
@@ -37,6 +41,7 @@ JWT_ENABLED=${JWT_ENABLED:-true}
 JWT_SECRET=${JWT_SECRET:-secret}
 JWT_HEADER=${JWT_HEADER:-Authorization}
 JWT_SECRET=`cat /var/lib/nethserver/secrets/onlyoffice`
+SECRET_STRING=`cat /var/lib/nethserver/secrets/onlyofficesecret`
 
 # get reject unauthorized ssl config
 
@@ -50,13 +55,18 @@ PSQL="psql -q $CONNECTION_PARAMS"
 CREATEDB="createdb -q $CONNECTION_PARAMS"
 
 su - postgres -c "psql -lqt | cut -d \| -f 1 | grep -q -w onlyoffice"
-if [ $? -eq 1 ]; then # database do not exists
+if [ $? -eq 1 ]; then # database does not exist
   su - postgres -c 'psql -c "CREATE DATABASE onlyoffice;"'
   su - postgres -c "psql -c \"CREATE USER onlyoffice WITH password '$PGPASSWORD';\""
   su - postgres -c 'psql -c "GRANT ALL privileges ON DATABASE onlyoffice TO onlyoffice;"'
 else
   su - postgres -c "psql -c \"ALTER USER onlyoffice WITH password '$PGPASSWORD';\""
+
 fi
+
+# db upgrades
+
+for FILE in "$DIR/documentserver/server/schema/postgresql/upgrade/*"; do $PSQL -d "onlyoffice" -f $FILE >/dev/null 2>&1; done
 
 # check if db works correctly
 
@@ -89,7 +99,8 @@ jq -r ".services.CoAuthoring.token.enable.browser = ${JWT_ENABLED}" $DEFAULT_CON
 jq -r ".services.CoAuthoring.token.enable.request.inbox = ${JWT_ENABLED}" $DEFAULT_CONFIG > temp.json && mv -f temp.json $DEFAULT_CONFIG
 jq -r ".services.CoAuthoring.token.enable.request.outbox = ${JWT_ENABLED}" $DEFAULT_CONFIG > temp.json && mv -f temp.json $DEFAULT_CONFIG
 
-# set secret for session, inbox and outbox
+# set secret for browser, session, inbox and outbox
+jq -r ".services.CoAuthoring.secret.browser.string = \"${JWT_SECRET}\"" $DEFAULT_CONFIG > temp.json && mv -f temp.json $DEFAULT_CONFIG
 jq -r ".services.CoAuthoring.secret.inbox.string = \"${JWT_SECRET}\"" $DEFAULT_CONFIG > temp.json && mv -f temp.json $DEFAULT_CONFIG
 jq -r ".services.CoAuthoring.secret.outbox.string = \"${JWT_SECRET}\"" $DEFAULT_CONFIG > temp.json && mv -f temp.json $DEFAULT_CONFIG
 jq -r ".services.CoAuthoring.secret.session.string = \"${JWT_SECRET}\"" $DEFAULT_CONFIG > temp.json && mv -f temp.json $DEFAULT_CONFIG
@@ -100,6 +111,18 @@ jq -r ".services.CoAuthoring.token.outbox.header = \"${JWT_HEADER}\"" $DEFAULT_C
 
 # Allow unauthorized SSL if enabled
 jq -r ".services.CoAuthoring.requestDefaults.rejectUnauthorized = ${REJECT_UNAUTHORIZED}" $DEFAULT_CONFIG > temp.json && mv -f temp.json $DEFAULT_CONFIG
+
+# Set secret string
+
+jq -r ".storage.fs.secretString = \"${SECRET_STRING}\"" $DEFAULT_CONFIG > temp.json && mv -f temp.json $DEFAULT_CONFIG
+
+# Set metrics statsd port to not conflict with netdata running on 8125
+
+jq -r ".statsd.port = \"8126\"" $DEFAULT_CONFIG > temp.json && mv -f temp.json $DEFAULT_CONFIG
+
+# Change port in config.js too
+
+sed -i 's!port: 8125!port: 8126!' /var/www/onlyoffice/documentserver/server/Metrics/config/config.js
 
 # get fqdn and dshost
 
