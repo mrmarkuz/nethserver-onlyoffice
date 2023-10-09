@@ -1,6 +1,6 @@
 Name: nethserver-onlyoffice
 Version: 0.0.3
-Release: 1%{?dist}
+Release: 2%{?dist}
 Summary: Onlyoffice document server for NethServer
 License: GPL
 Source0: %{name}-%{version}.tar.gz
@@ -31,6 +31,8 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Mon Oct 09 2023 Markus Neuberger <dev@markusneuberger.at> - 0.0.3-2
+- Add the_prefix variable needed by documentserver 7.4.1
 * Thu Feb 20 2023 Markus Neuberger <dev@markusneuberger.at> - 0.0.3-1
 - Change from supervisord to systemd
 - Add Secret String
